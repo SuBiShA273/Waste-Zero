@@ -26,6 +26,13 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "availability")
+    private CollectorAvailability availability = CollectorAvailability.AVAILABLE;
+
+    @Column(name = "service_area")
+    private String serviceArea;
+
     @Column(nullable = false)
     private boolean active = true;
 
@@ -55,6 +62,18 @@ public class User {
         this.phone = phone;
         this.role = role;
         this.active = true;
+        this.availability = CollectorAvailability.AVAILABLE;
+    }
+
+    public User(String name, String email, String password, String phone, Role role, CollectorAvailability availability, String serviceArea) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.phone = phone;
+        this.role = role;
+        this.active = true;
+        this.availability = availability != null ? availability : CollectorAvailability.AVAILABLE;
+        this.serviceArea = serviceArea;
     }
 
     public Long getId() {
@@ -103,6 +122,22 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public CollectorAvailability getAvailability() {
+        return availability;
+    }
+
+    public void setAvailability(CollectorAvailability availability) {
+        this.availability = availability;
+    }
+
+    public String getServiceArea() {
+        return serviceArea;
+    }
+
+    public void setServiceArea(String serviceArea) {
+        this.serviceArea = serviceArea;
     }
 
     public boolean isActive() {

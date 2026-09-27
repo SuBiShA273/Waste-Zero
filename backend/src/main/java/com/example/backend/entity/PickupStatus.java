@@ -7,6 +7,7 @@ public enum PickupStatus {
     ON_THE_WAY,
     ARRIVED,
     COLLECTED,
+    REJECTED,
     RECYCLED,
     CANCELLED
 }

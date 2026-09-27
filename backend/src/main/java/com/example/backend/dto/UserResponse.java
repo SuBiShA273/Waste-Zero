@@ -1,7 +1,9 @@
 package com.example.backend.dto;
 
+import com.example.backend.entity.CollectorAvailability;
 import com.example.backend.entity.Role;
 import com.example.backend.entity.User;
+
 import java.time.LocalDateTime;
 
 public class UserResponse {
@@ -11,17 +13,23 @@ public class UserResponse {
     private String email;
     private String phone;
     private Role role;
+    private CollectorAvailability availability;
+    private String serviceArea;
     private boolean active;
     private LocalDateTime createdAt;
 
     public UserResponse() {}
 
-    public UserResponse(Long id, String name, String email, String phone, Role role, boolean active, LocalDateTime createdAt) {
+    public UserResponse(Long id, String name, String email, String phone, Role role,
+                        CollectorAvailability availability, String serviceArea,
+                        boolean active, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.role = role;
+        this.availability = availability;
+        this.serviceArea = serviceArea;
         this.active = active;
         this.createdAt = createdAt;
     }
@@ -33,6 +41,8 @@ public class UserResponse {
                 user.getEmail(),
                 user.getPhone(),
                 user.getRole(),
+                user.getAvailability(),
+                user.getServiceArea(),
                 user.isActive(),
                 user.getCreatedAt()
         );
@@ -76,6 +86,22 @@ public class UserResponse {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public CollectorAvailability getAvailability() {
+        return availability;
+    }
+
+    public void setAvailability(CollectorAvailability availability) {
+        this.availability = availability;
+    }
+
+    public String getServiceArea() {
+        return serviceArea;
+    }
+
+    public void setServiceArea(String serviceArea) {
+        this.serviceArea = serviceArea;
     }
 
     public boolean isActive() {

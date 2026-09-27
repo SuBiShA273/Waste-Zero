@@ -45,10 +45,10 @@ public class AuthService {
         }
 
         Role requestedRole = request.getRoleAsEnum();
-        Role assignedRole = Role.CUSTOMER;
-        if (requestedRole == Role.COLLECTOR) {
-            assignedRole = Role.COLLECTOR;
+        if (requestedRole == Role.ADMIN || requestedRole == Role.COLLECTOR) {
+            throw new IllegalArgumentException("Public registration is restricted to CUSTOMER accounts only");
         }
+        Role assignedRole = Role.CUSTOMER;
 
         User user = new User(
                 request.getName(),

@@ -16,6 +16,10 @@ public class Pickup {
     @JoinColumn(name = "customer_id", nullable = false)
     private User customer;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "collector_id")
+    private User collector;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "waste_category", nullable = false)
     private WasteCategory wasteCategory;
@@ -35,6 +39,21 @@ public class Pickup {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PickupStatus status;
+
+    @Column(name = "actual_weight")
+    private Double actualWeight;
+
+    @Column(name = "collection_notes", columnDefinition = "TEXT")
+    private String collectionNotes;
+
+    @Column(name = "collected_at")
+    private LocalDateTime collectedAt;
+
+    @Column(name = "rejection_reason", columnDefinition = "TEXT")
+    private String rejectionReason;
+
+    @Column(name = "proof_image_url")
+    private String proofImageUrl;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -131,6 +150,54 @@ public class Pickup {
 
     public void setStatus(PickupStatus status) {
         this.status = status;
+    }
+
+    public User getCollector() {
+        return collector;
+    }
+
+    public void setCollector(User collector) {
+        this.collector = collector;
+    }
+
+    public Double getActualWeight() {
+        return actualWeight;
+    }
+
+    public void setActualWeight(Double actualWeight) {
+        this.actualWeight = actualWeight;
+    }
+
+    public String getCollectionNotes() {
+        return collectionNotes;
+    }
+
+    public void setCollectionNotes(String collectionNotes) {
+        this.collectionNotes = collectionNotes;
+    }
+
+    public LocalDateTime getCollectedAt() {
+        return collectedAt;
+    }
+
+    public void setCollectedAt(LocalDateTime collectedAt) {
+        this.collectedAt = collectedAt;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
+    public String getProofImageUrl() {
+        return proofImageUrl;
+    }
+
+    public void setProofImageUrl(String proofImageUrl) {
+        this.proofImageUrl = proofImageUrl;
     }
 
     public LocalDateTime getCreatedAt() {

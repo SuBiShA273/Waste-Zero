@@ -18,10 +18,25 @@ public class PickupResponse {
     private PickupStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    // Customer details
     private Long customerId;
     private String customerName;
     private String customerEmail;
     private String customerPhone;
+
+    // Collector details
+    private Long collectorId;
+    private String collectorName;
+    private String collectorEmail;
+    private String collectorPhone;
+
+    // Collection completion details
+    private Double actualWeight;
+    private String collectionNotes;
+    private LocalDateTime collectedAt;
+    private String rejectionReason;
+    private String proofImageUrl;
 
     public PickupResponse() {}
 
@@ -36,12 +51,27 @@ public class PickupResponse {
         response.setStatus(pickup.getStatus());
         response.setCreatedAt(pickup.getCreatedAt());
         response.setUpdatedAt(pickup.getUpdatedAt());
+
+        response.setActualWeight(pickup.getActualWeight());
+        response.setCollectionNotes(pickup.getCollectionNotes());
+        response.setCollectedAt(pickup.getCollectedAt());
+        response.setRejectionReason(pickup.getRejectionReason());
+        response.setProofImageUrl(pickup.getProofImageUrl());
+
         if (pickup.getCustomer() != null) {
             response.setCustomerId(pickup.getCustomer().getId());
             response.setCustomerName(pickup.getCustomer().getName());
             response.setCustomerEmail(pickup.getCustomer().getEmail());
             response.setCustomerPhone(pickup.getCustomer().getPhone());
         }
+
+        if (pickup.getCollector() != null) {
+            response.setCollectorId(pickup.getCollector().getId());
+            response.setCollectorName(pickup.getCollector().getName());
+            response.setCollectorEmail(pickup.getCollector().getEmail());
+            response.setCollectorPhone(pickup.getCollector().getPhone());
+        }
+
         return response;
     }
 
@@ -147,5 +177,77 @@ public class PickupResponse {
 
     public void setCustomerPhone(String customerPhone) {
         this.customerPhone = customerPhone;
+    }
+
+    public Long getCollectorId() {
+        return collectorId;
+    }
+
+    public void setCollectorId(Long collectorId) {
+        this.collectorId = collectorId;
+    }
+
+    public String getCollectorName() {
+        return collectorName;
+    }
+
+    public void setCollectorName(String collectorName) {
+        this.collectorName = collectorName;
+    }
+
+    public String getCollectorEmail() {
+        return collectorEmail;
+    }
+
+    public void setCollectorEmail(String collectorEmail) {
+        this.collectorEmail = collectorEmail;
+    }
+
+    public String getCollectorPhone() {
+        return collectorPhone;
+    }
+
+    public void setCollectorPhone(String collectorPhone) {
+        this.collectorPhone = collectorPhone;
+    }
+
+    public Double getActualWeight() {
+        return actualWeight;
+    }
+
+    public void setActualWeight(Double actualWeight) {
+        this.actualWeight = actualWeight;
+    }
+
+    public String getCollectionNotes() {
+        return collectionNotes;
+    }
+
+    public void setCollectionNotes(String collectionNotes) {
+        this.collectionNotes = collectionNotes;
+    }
+
+    public LocalDateTime getCollectedAt() {
+        return collectedAt;
+    }
+
+    public void setCollectedAt(LocalDateTime collectedAt) {
+        this.collectedAt = collectedAt;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
+    public String getProofImageUrl() {
+        return proofImageUrl;
+    }
+
+    public void setProofImageUrl(String proofImageUrl) {
+        this.proofImageUrl = proofImageUrl;
     }
 }
