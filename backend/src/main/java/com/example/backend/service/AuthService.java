@@ -45,18 +45,39 @@ public class AuthService {
         }
 
         Role requestedRole = request.getRoleAsEnum();
-        if (requestedRole == Role.ADMIN || requestedRole == Role.COLLECTOR) {
-            throw new IllegalArgumentException("Public registration is restricted to CUSTOMER accounts only");
-        }
-        Role assignedRole = Role.CUSTOMER;
+        Role assignedRole = requestedRole != null ? requestedRole : Role.CUSTOMER;
 
-        User user = new User(
-                request.getName(),
-                request.getEmail(),
-                passwordEncoder.encode(request.getPassword()),
-                request.getPhone(),
-                assignedRole
-        );
+        User user;
+        if (assignedRole == Role.COLLECTOR) {
+            String serviceArea = org.springframework.util.StringUtils.hasText(request.getServiceArea())
+                    ? request.getServiceArea().trim()
+                    : "Zone 1";
+            user = new User(
+                    request.getName(),
+                    request.getEmail(),
+                    passwordEncoder.encode(request.getPassword()),
+                    request.getPhone(),
+                    Role.COLLECTOR,
+                    com.example.backend.entity.CollectorAvailability.AVAILABLE,
+                    serviceArea
+            );
+        } else if (assignedRole == Role.ADMIN) {
+            user = new User(
+                    request.getName(),
+                    request.getEmail(),
+                    passwordEncoder.encode(request.getPassword()),
+                    request.getPhone(),
+                    Role.ADMIN
+            );
+        } else {
+            user = new User(
+                    request.getName(),
+                    request.getEmail(),
+                    passwordEncoder.encode(request.getPassword()),
+                    request.getPhone(),
+                    Role.CUSTOMER
+            );
+        }
 
         User savedUser = userRepository.save(user);
         var userDetails = userDetailsService.loadUserByUsername(savedUser.getEmail());

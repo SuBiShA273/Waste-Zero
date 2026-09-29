@@ -9,5 +9,9 @@ public enum PickupStatus {
     COLLECTED,
     REJECTED,
     RECYCLED,
-    CANCELLED
+    CANCELLED,
+    REASSIGNABLE,
+    FAILED,
+    EXPIRED
 }
+

@@ -31,11 +31,13 @@ public class CollectorService {
 
     private final PickupRepository pickupRepository;
     private final UserRepository userRepository;
+    private final AssignmentService assignmentService;
     private static final String UPLOAD_DIR = "uploads/proofs/";
 
-    public CollectorService(PickupRepository pickupRepository, UserRepository userRepository) {
+    public CollectorService(PickupRepository pickupRepository, UserRepository userRepository, AssignmentService assignmentService) {
         this.pickupRepository = pickupRepository;
         this.userRepository = userRepository;
+        this.assignmentService = assignmentService;
     }
 
     @Transactional(readOnly = true)
@@ -44,7 +46,8 @@ public class CollectorService {
 
         List<Pickup> availableAndAssigned = pickupRepository.findCollectorAvailableAndAssignedPickups(collector.getId());
         long assigned = availableAndAssigned.stream()
-                .filter(p -> p.getStatus() == PickupStatus.ASSIGNED || p.getStatus() == PickupStatus.REQUESTED)
+                .filter(p -> !p.isRejectedByCollector(collector))
+                .filter(p -> p.getStatus() == PickupStatus.ASSIGNED || p.getStatus() == PickupStatus.REQUESTED || p.getStatus() == PickupStatus.REASSIGNABLE)
                 .count();
 
         long accepted = pickupRepository.countByCollectorIdAndStatusIn(
@@ -100,6 +103,7 @@ public class CollectorService {
         }
 
         return pickups.stream()
+                .filter(p -> !p.isRejectedByCollector(collector))
                 .distinct()
                 .map(PickupResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -129,10 +133,15 @@ public class CollectorService {
     @Transactional
     public PickupResponse acceptPickup(Long pickupId, String collectorEmail) {
         User collector = getCollectorUser(collectorEmail);
-        Pickup pickup = getAuthorizedPickup(pickupId, collector.getId());
+        Pickup pickup = pickupRepository.findByIdWithPessimisticLock(pickupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pickup not found with ID: " + pickupId));
 
-        if (pickup.getStatus() != PickupStatus.ASSIGNED && pickup.getStatus() != PickupStatus.REQUESTED) {
-            throw new IllegalStateException("Only pickups in ASSIGNED or REQUESTED status can be accepted. Current status is: " + pickup.getStatus());
+        if (pickup.getStatus() != PickupStatus.ASSIGNED && pickup.getStatus() != PickupStatus.REQUESTED && pickup.getStatus() != PickupStatus.REASSIGNABLE) {
+            throw new IllegalStateException("Only pickups in ASSIGNED, REQUESTED, or REASSIGNABLE status can be accepted. Current status is: " + pickup.getStatus());
+        }
+
+        if (pickup.getCollector() != null && !pickup.getCollector().getId().equals(collector.getId())) {
+            throw new AccessDeniedException("Access denied: This pickup has already been claimed by or assigned to another collector");
         }
 
         pickup.setCollector(collector);
@@ -149,23 +158,33 @@ public class CollectorService {
     @Transactional
     public PickupResponse rejectPickup(Long pickupId, RejectPickupRequest request, String collectorEmail) {
         User collector = getCollectorUser(collectorEmail);
-        Pickup pickup = getAuthorizedPickup(pickupId, collector.getId());
+        Pickup pickup = pickupRepository.findByIdWithPessimisticLock(pickupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pickup not found with ID: " + pickupId));
 
-        if (pickup.getStatus() != PickupStatus.ASSIGNED && pickup.getStatus() != PickupStatus.REQUESTED) {
-            throw new IllegalStateException("Only pickups in ASSIGNED or REQUESTED status can be rejected. Current status is: " + pickup.getStatus());
+        if (pickup.getStatus() != PickupStatus.ASSIGNED && pickup.getStatus() != PickupStatus.REQUESTED && pickup.getStatus() != PickupStatus.REASSIGNABLE) {
+            throw new IllegalStateException("Only pickups in ASSIGNED, REQUESTED, or REASSIGNABLE status can be rejected. Current status is: " + pickup.getStatus());
         }
 
-        pickup.setCollector(collector);
-        pickup.setStatus(PickupStatus.REJECTED);
+        if (pickup.getCollector() != null && !pickup.getCollector().getId().equals(collector.getId())) {
+            throw new AccessDeniedException("Access denied: You are not assigned to this pickup request");
+        }
+
+        // Move status to REASSIGNABLE and clear assigned collector
+        pickup.addRejectedCollector(collector);
+        pickup.setCollector(null);
+        pickup.setStatus(PickupStatus.REASSIGNABLE);
         if (request != null && StringUtils.hasText(request.getReason())) {
             pickup.setRejectionReason(request.getReason().trim());
         }
-        Pickup updated = pickupRepository.save(pickup);
+        pickupRepository.saveAndFlush(pickup);
 
-        // Check if collector has remaining active pickups
+        // Attempt Smart Reassignment with another eligible collector
+        assignmentService.assignCollectorToPickup(pickup);
+
+        // Update collector availability status based on remaining active workload
         updateCollectorAvailabilityStatus(collector);
 
-        return PickupResponse.fromEntity(updated);
+        return PickupResponse.fromEntity(pickup);
     }
 
     @Transactional
@@ -239,11 +258,9 @@ public class CollectorService {
     }
 
     private void updateCollectorAvailabilityStatus(User collector) {
-        long activeCount = pickupRepository.countByCollectorIdAndStatusIn(
-                collector.getId(),
-                List.of(PickupStatus.ACCEPTED, PickupStatus.ON_THE_WAY, PickupStatus.ARRIVED)
-        );
-        if (activeCount == 0) {
+        long activeCount = assignmentService.countActiveWorkload(collector.getId());
+        // Automatically revert to AVAILABLE when active workload drops to 0, but preserve manual OFFLINE state
+        if (activeCount == 0 && collector.getAvailability() == CollectorAvailability.BUSY) {
             collector.setAvailability(CollectorAvailability.AVAILABLE);
             userRepository.save(collector);
         }
@@ -319,7 +336,7 @@ public class CollectorService {
             throw new AccessDeniedException("Access denied: You are not assigned to this pickup request");
         }
 
-        if (pickup.getCollector() == null && pickup.getStatus() != PickupStatus.REQUESTED && pickup.getStatus() != PickupStatus.ASSIGNED) {
+        if (pickup.getCollector() == null && pickup.getStatus() != PickupStatus.REQUESTED && pickup.getStatus() != PickupStatus.ASSIGNED && pickup.getStatus() != PickupStatus.REASSIGNABLE) {
             throw new AccessDeniedException("Access denied: You are not assigned to this pickup request");
         }
 

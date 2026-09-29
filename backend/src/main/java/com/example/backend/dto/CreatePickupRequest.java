@@ -24,6 +24,8 @@ public class CreatePickupRequest {
     @NotBlank(message = "Preferred time is required")
     private String preferredTime;
 
+    private String serviceArea;
+
     public CreatePickupRequest() {}
 
     public CreatePickupRequest(WasteCategory wasteCategory, String description, String pickupAddress, LocalDate preferredDate, String preferredTime) {
@@ -32,6 +34,15 @@ public class CreatePickupRequest {
         this.pickupAddress = pickupAddress;
         this.preferredDate = preferredDate;
         this.preferredTime = preferredTime;
+    }
+
+    public CreatePickupRequest(WasteCategory wasteCategory, String description, String pickupAddress, LocalDate preferredDate, String preferredTime, String serviceArea) {
+        this.wasteCategory = wasteCategory;
+        this.description = description;
+        this.pickupAddress = pickupAddress;
+        this.preferredDate = preferredDate;
+        this.preferredTime = preferredTime;
+        this.serviceArea = serviceArea;
     }
 
     public WasteCategory getWasteCategory() {
@@ -72,5 +83,13 @@ public class CreatePickupRequest {
 
     public void setPreferredTime(String preferredTime) {
         this.preferredTime = preferredTime;
+    }
+
+    public String getServiceArea() {
+        return serviceArea;
+    }
+
+    public void setServiceArea(String serviceArea) {
+        this.serviceArea = serviceArea;
     }
 }

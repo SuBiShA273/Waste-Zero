@@ -3,6 +3,8 @@ package com.example.backend.entity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "pickups")
@@ -29,6 +31,24 @@ public class Pickup {
 
     @Column(name = "pickup_address", nullable = false)
     private String pickupAddress;
+
+    @Column(name = "service_area")
+    private String serviceArea;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rejected_by_collector_id")
+    private User rejectedByCollector;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "pickup_rejected_collectors",
+        joinColumns = @JoinColumn(name = "pickup_id"),
+        inverseJoinColumns = @JoinColumn(name = "collector_id")
+    )
+    private Set<User> rejectedCollectors = new HashSet<>();
+
+    @Version
+    private Long version;
 
     @Column(name = "preferred_date", nullable = false)
     private LocalDate preferredDate;
@@ -214,5 +234,55 @@ public class Pickup {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getServiceArea() {
+        return serviceArea;
+    }
+
+    public void setServiceArea(String serviceArea) {
+        this.serviceArea = serviceArea;
+    }
+
+    public User getRejectedByCollector() {
+        return rejectedByCollector;
+    }
+
+    public void setRejectedByCollector(User rejectedByCollector) {
+        this.rejectedByCollector = rejectedByCollector;
+    }
+
+    public Set<User> getRejectedCollectors() {
+        if (rejectedCollectors == null) {
+            rejectedCollectors = new HashSet<>();
+        }
+        return rejectedCollectors;
+    }
+
+    public void setRejectedCollectors(Set<User> rejectedCollectors) {
+        this.rejectedCollectors = rejectedCollectors;
+    }
+
+    public void addRejectedCollector(User collector) {
+        if (collector != null) {
+            getRejectedCollectors().add(collector);
+            this.rejectedByCollector = collector;
+        }
+    }
+
+    public boolean isRejectedByCollector(User collector) {
+        if (collector == null || collector.getId() == null) {
+            return false;
+        }
+        return getRejectedCollectors().stream()
+                .anyMatch(rc -> rc.getId() != null && rc.getId().equals(collector.getId()));
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }

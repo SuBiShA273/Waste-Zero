@@ -13,6 +13,7 @@ public class PickupResponse {
     private WasteCategory wasteCategory;
     private String description;
     private String pickupAddress;
+    private String serviceArea;
     private LocalDate preferredDate;
     private String preferredTime;
     private PickupStatus status;
@@ -30,6 +31,7 @@ public class PickupResponse {
     private String collectorName;
     private String collectorEmail;
     private String collectorPhone;
+    private String collectorServiceArea;
 
     // Collection completion details
     private Double actualWeight;
@@ -46,6 +48,7 @@ public class PickupResponse {
         response.setWasteCategory(pickup.getWasteCategory());
         response.setDescription(pickup.getDescription());
         response.setPickupAddress(pickup.getPickupAddress());
+        response.setServiceArea(pickup.getServiceArea());
         response.setPreferredDate(pickup.getPreferredDate());
         response.setPreferredTime(pickup.getPreferredTime());
         response.setStatus(pickup.getStatus());
@@ -70,6 +73,7 @@ public class PickupResponse {
             response.setCollectorName(pickup.getCollector().getName());
             response.setCollectorEmail(pickup.getCollector().getEmail());
             response.setCollectorPhone(pickup.getCollector().getPhone());
+            response.setCollectorServiceArea(pickup.getCollector().getServiceArea());
         }
 
         return response;
@@ -249,5 +253,21 @@ public class PickupResponse {
 
     public void setProofImageUrl(String proofImageUrl) {
         this.proofImageUrl = proofImageUrl;
+    }
+
+    public String getServiceArea() {
+        return serviceArea;
+    }
+
+    public void setServiceArea(String serviceArea) {
+        this.serviceArea = serviceArea;
+    }
+
+    public String getCollectorServiceArea() {
+        return collectorServiceArea;
+    }
+
+    public void setCollectorServiceArea(String collectorServiceArea) {
+        this.collectorServiceArea = collectorServiceArea;
     }
 }

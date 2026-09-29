@@ -21,10 +21,12 @@ public class PickupService {
 
     private final PickupRepository pickupRepository;
     private final UserRepository userRepository;
+    private final AssignmentService assignmentService;
 
-    public PickupService(PickupRepository pickupRepository, UserRepository userRepository) {
+    public PickupService(PickupRepository pickupRepository, UserRepository userRepository, AssignmentService assignmentService) {
         this.pickupRepository = pickupRepository;
         this.userRepository = userRepository;
+        this.assignmentService = assignmentService;
     }
 
     @Transactional
@@ -40,9 +42,14 @@ public class PickupService {
                 request.getPreferredDate(),
                 request.getPreferredTime()
         );
+        pickup.setServiceArea(request.getServiceArea());
         pickup.setStatus(PickupStatus.REQUESTED);
 
         Pickup saved = pickupRepository.save(pickup);
+
+        // Smart Collector Assignment Service call
+        assignmentService.assignCollectorToPickup(saved);
+
         return PickupResponse.fromEntity(saved);
     }
 
@@ -84,8 +91,8 @@ public class PickupService {
             throw new AccessDeniedException("Access denied: You are not authorized to cancel another customer's pickup request");
         }
 
-        if (pickup.getStatus() != PickupStatus.REQUESTED) {
-            throw new IllegalStateException("Only pickup requests in REQUESTED status can be cancelled. Current status is " + pickup.getStatus());
+        if (pickup.getStatus() != PickupStatus.REQUESTED && pickup.getStatus() != PickupStatus.ASSIGNED && pickup.getStatus() != PickupStatus.REASSIGNABLE) {
+            throw new IllegalStateException("Only pending/assigned pickup requests prior to acceptance can be cancelled. Current status is " + pickup.getStatus());
         }
 
         pickup.setStatus(PickupStatus.CANCELLED);

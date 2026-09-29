@@ -34,6 +34,8 @@ public class RegisterRequest {
 
     private String role;
 
+    private String serviceArea;
+
     public RegisterRequest() {}
 
     public RegisterRequest(String name, String email, String password, String phone, String role) {
@@ -42,6 +44,15 @@ public class RegisterRequest {
         this.password = password;
         this.phone = phone;
         this.role = role;
+    }
+
+    public RegisterRequest(String name, String email, String password, String phone, String role, String serviceArea) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.phone = phone;
+        this.role = role;
+        this.serviceArea = serviceArea;
     }
 
     public String getName() {
@@ -82,6 +93,14 @@ public class RegisterRequest {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getServiceArea() {
+        return serviceArea;
+    }
+
+    public void setServiceArea(String serviceArea) {
+        this.serviceArea = serviceArea;
     }
 
     public Role getRoleAsEnum() {
