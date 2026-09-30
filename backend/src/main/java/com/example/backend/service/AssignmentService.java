@@ -21,6 +21,7 @@ public class AssignmentService {
 
     private final UserRepository userRepository;
     private final PickupRepository pickupRepository;
+    private final com.example.backend.repository.PickupStatusHistoryRepository pickupStatusHistoryRepository;
 
     private static final List<PickupStatus> ACTIVE_WORKLOAD_STATUSES = List.of(
             PickupStatus.ASSIGNED,
@@ -29,9 +30,14 @@ public class AssignmentService {
             PickupStatus.ARRIVED
     );
 
-    public AssignmentService(UserRepository userRepository, PickupRepository pickupRepository) {
+    public AssignmentService(
+            UserRepository userRepository,
+            PickupRepository pickupRepository,
+            com.example.backend.repository.PickupStatusHistoryRepository pickupStatusHistoryRepository
+    ) {
         this.userRepository = userRepository;
         this.pickupRepository = pickupRepository;
+        this.pickupStatusHistoryRepository = pickupStatusHistoryRepository;
     }
 
     /**
@@ -106,6 +112,9 @@ public class AssignmentService {
             pickup.setCollector(assignedCollector);
             pickup.setStatus(PickupStatus.ASSIGNED);
             pickupRepository.save(pickup);
+            pickupStatusHistoryRepository.save(new com.example.backend.entity.PickupStatusHistory(
+                    pickup, PickupStatus.ASSIGNED, assignedCollector, "Assigned to collector " + assignedCollector.getName()
+            ));
             return Optional.of(assignedCollector);
         } else {
             // Keep pending status and clear collector reference

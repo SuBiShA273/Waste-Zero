@@ -3,22 +3,39 @@ import { authService } from '../services/authService';
 
 const AuthContext = createContext(null);
 
+export const getAuthToken = () => {
+  return sessionStorage.getItem('wastezero_token') || localStorage.getItem('wastezero_token');
+};
+
+export const setAuthToken = (token) => {
+  sessionStorage.setItem('wastezero_token', token);
+  localStorage.setItem('wastezero_token', token);
+};
+
+export const removeAuthToken = () => {
+  sessionStorage.removeItem('wastezero_token');
+  localStorage.removeItem('wastezero_token');
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('wastezero_token') || null);
+  const [token, setToken] = useState(getAuthToken());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const initAuth = async () => {
-      const storedToken = localStorage.getItem('wastezero_token');
+      const storedToken = getAuthToken();
       if (storedToken) {
         try {
+          if (!sessionStorage.getItem('wastezero_token')) {
+            sessionStorage.setItem('wastezero_token', storedToken);
+          }
           const userData = await authService.getMe();
           setUser(userData);
           setToken(storedToken);
         } catch (err) {
           console.error('Failed to restore session:', err);
-          localStorage.removeItem('wastezero_token');
+          removeAuthToken();
           setToken(null);
           setUser(null);
         }
@@ -32,7 +49,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     const response = await authService.login(credentials);
     const { token: newToken, user: userData } = response;
-    localStorage.setItem('wastezero_token', newToken);
+    setAuthToken(newToken);
     setToken(newToken);
     setUser(userData);
     return response;
@@ -41,14 +58,14 @@ export const AuthProvider = ({ children }) => {
   const register = async (data) => {
     const response = await authService.register(data);
     const { token: newToken, user: userData } = response;
-    localStorage.setItem('wastezero_token', newToken);
+    setAuthToken(newToken);
     setToken(newToken);
     setUser(userData);
     return response;
   };
 
   const logout = () => {
-    localStorage.removeItem('wastezero_token');
+    removeAuthToken();
     setToken(null);
     setUser(null);
   };
@@ -77,3 +94,4 @@ export const useAuth = () => {
   }
   return context;
 };
+

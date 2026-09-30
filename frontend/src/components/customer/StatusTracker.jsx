@@ -17,7 +17,9 @@ const getStepState = (stepKey, currentStatus) => {
   }
 
   const stepOrder = ['REQUESTED', 'ASSIGNED', 'ACCEPTED', 'ON_THE_WAY', 'ARRIVED', 'COLLECTED', 'RECYCLED'];
-  const currentIndex = stepOrder.indexOf(currentStatus);
+  let effectiveStatus = currentStatus === 'REASSIGNABLE' ? 'REQUESTED' : currentStatus;
+  let currentIndex = stepOrder.indexOf(effectiveStatus);
+
   const stepIndex = stepOrder.indexOf(stepKey);
 
   if (stepIndex < 0) return 'future';
@@ -25,7 +27,7 @@ const getStepState = (stepKey, currentStatus) => {
   if (stepIndex < currentIndex) {
     return 'completed';
   } else if (stepIndex === currentIndex) {
-    return 'active';
+    return 'completed'; // Mark current reached stage as completed or active
   } else {
     return 'future';
   }
@@ -55,8 +57,6 @@ const StatusTracker = ({ status }) => {
                   <div className="step-circle">
                     {state === 'completed' ? (
                       <CheckIcon className="check-icon" fontSize="small" />
-                    ) : state === 'active' ? (
-                      <div className="active-dot" />
                     ) : (
                       <span className="step-number">{idx + 1}</span>
                     )}

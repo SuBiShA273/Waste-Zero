@@ -66,6 +66,19 @@ export const cancelPickup = createAsyncThunk(
   }
 );
 
+export const recyclePickup = createAsyncThunk(
+  'pickups/recyclePickup',
+  async ({ id, recyclingNotes }, { rejectWithValue }) => {
+    try {
+      return await pickupService.recyclePickup(id, { recyclingNotes });
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || 'Failed to mark pickup as recycled'
+      );
+    }
+  }
+);
+
 const initialState = {
   pickups: [],
   stats: {
@@ -79,6 +92,7 @@ const initialState = {
   loading: false,
   creating: false,
   cancelling: false,
+  recycling: false,
   error: null,
   createSuccess: false,
 };
@@ -109,7 +123,7 @@ const pickupSlice = createSlice({
         state.pickups = action.payload;
         // Derive active pickup (first pickup that is not RECYCLED, COLLECTED, REJECTED, CANCELLED, FAILED, EXPIRED)
         const active = action.payload.find((p) =>
-          ['REQUESTED', 'ASSIGNED', 'ACCEPTED', 'ON_THE_WAY', 'ARRIVED', 'SORTING', 'PROCESSING'].includes(p.status)
+          ['REQUESTED', 'ASSIGNED', 'ACCEPTED', 'ON_THE_WAY', 'ARRIVED'].includes(p.status)
         );
         state.activePickup = active || null;
       })
@@ -172,13 +186,31 @@ const pickupSlice = createSlice({
           // find next active
           const nextActive = state.pickups.find((p) =>
             p.id !== updated.id &&
-            ['REQUESTED', 'ASSIGNED', 'ACCEPTED', 'ON_THE_WAY', 'ARRIVED', 'SORTING', 'PROCESSING'].includes(p.status)
+            ['REQUESTED', 'ASSIGNED', 'ACCEPTED', 'ON_THE_WAY', 'ARRIVED'].includes(p.status)
           );
           state.activePickup = nextActive || null;
         }
       })
       .addCase(cancelPickup.rejected, (state, action) => {
         state.cancelling = false;
+        state.error = action.payload;
+      })
+
+      // recyclePickup
+      .addCase(recyclePickup.pending, (state) => {
+        state.recycling = true;
+        state.error = null;
+      })
+      .addCase(recyclePickup.fulfilled, (state, action) => {
+        state.recycling = false;
+        const updated = action.payload;
+        state.pickups = state.pickups.map((p) => (p.id === updated.id ? updated : p));
+        if (state.currentPickup?.id === updated.id) {
+          state.currentPickup = updated;
+        }
+      })
+      .addCase(recyclePickup.rejected, (state, action) => {
+        state.recycling = false;
         state.error = action.payload;
       });
   },

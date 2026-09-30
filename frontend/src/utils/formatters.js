@@ -38,6 +38,38 @@ export const formatCategory = (cat) => {
 };
 
 /**
+ * Format status keys to clean title case (e.g., "ON_THE_WAY" -> "On The Way")
+ */
+export const formatStatus = (status) => {
+  if (!status) return 'Unknown';
+  switch (status) {
+    case 'REQUESTED':
+      return 'Requested';
+    case 'ASSIGNED':
+      return 'Assigned';
+    case 'ACCEPTED':
+      return 'Accepted';
+    case 'ON_THE_WAY':
+      return 'On The Way';
+    case 'ARRIVED':
+      return 'Arrived';
+    case 'COLLECTED':
+      return 'Collected';
+    case 'RECYCLED':
+      return 'Recycled';
+    case 'CANCELLED':
+      return 'Cancelled';
+    case 'REJECTED':
+      return 'Rejected';
+    default:
+      return status
+        .split('_')
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join(' ');
+  }
+};
+
+/**
  * Format date & time strings cleanly
  */
 export const formatDateTime = (dtStr) => {
@@ -53,3 +85,17 @@ export const formatDateTime = (dtStr) => {
     return dtStr;
   }
 };
+
+/**
+ * Format image upload URLs to point to full backend server address if relative
+ */
+export const getImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+  const cleanBase = baseUrl.replace(/\/$/, '');
+  const cleanUrl = url.startsWith('/') ? url : `/${url}`;
+  return `${cleanBase}${cleanUrl}`;
+};
+
+

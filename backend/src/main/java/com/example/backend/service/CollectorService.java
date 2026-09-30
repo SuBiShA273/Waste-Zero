@@ -32,12 +32,19 @@ public class CollectorService {
     private final PickupRepository pickupRepository;
     private final UserRepository userRepository;
     private final AssignmentService assignmentService;
+    private final com.example.backend.repository.PickupStatusHistoryRepository pickupStatusHistoryRepository;
     private static final String UPLOAD_DIR = "uploads/proofs/";
 
-    public CollectorService(PickupRepository pickupRepository, UserRepository userRepository, AssignmentService assignmentService) {
+    public CollectorService(
+            PickupRepository pickupRepository,
+            UserRepository userRepository,
+            AssignmentService assignmentService,
+            com.example.backend.repository.PickupStatusHistoryRepository pickupStatusHistoryRepository
+    ) {
         this.pickupRepository = pickupRepository;
         this.userRepository = userRepository;
         this.assignmentService = assignmentService;
+        this.pickupStatusHistoryRepository = pickupStatusHistoryRepository;
     }
 
     @Transactional(readOnly = true)
@@ -127,7 +134,8 @@ public class CollectorService {
     public PickupResponse getPickupById(Long pickupId, String collectorEmail) {
         User collector = getCollectorUser(collectorEmail);
         Pickup pickup = getAuthorizedPickup(pickupId, collector.getId());
-        return PickupResponse.fromEntity(pickup);
+        List<com.example.backend.entity.PickupStatusHistory> histories = pickupStatusHistoryRepository.findByPickupIdOrderByChangedAtAsc(pickupId);
+        return PickupResponse.fromEntity(pickup, histories);
     }
 
     @Transactional
@@ -152,7 +160,12 @@ public class CollectorService {
         userRepository.save(collector);
 
         Pickup updated = pickupRepository.save(pickup);
-        return PickupResponse.fromEntity(updated);
+        pickupStatusHistoryRepository.save(new com.example.backend.entity.PickupStatusHistory(
+                updated, PickupStatus.ACCEPTED, collector, "Accepted by collector " + collector.getName()
+        ));
+
+        List<com.example.backend.entity.PickupStatusHistory> histories = pickupStatusHistoryRepository.findByPickupIdOrderByChangedAtAsc(pickupId);
+        return PickupResponse.fromEntity(updated, histories);
     }
 
     @Transactional
@@ -177,6 +190,9 @@ public class CollectorService {
             pickup.setRejectionReason(request.getReason().trim());
         }
         pickupRepository.saveAndFlush(pickup);
+        pickupStatusHistoryRepository.save(new com.example.backend.entity.PickupStatusHistory(
+                pickup, PickupStatus.REASSIGNABLE, collector, "Rejected by collector: " + (pickup.getRejectionReason() != null ? pickup.getRejectionReason() : "No reason provided")
+        ));
 
         // Attempt Smart Reassignment with another eligible collector
         assignmentService.assignCollectorToPickup(pickup);
@@ -184,7 +200,8 @@ public class CollectorService {
         // Update collector availability status based on remaining active workload
         updateCollectorAvailabilityStatus(collector);
 
-        return PickupResponse.fromEntity(pickup);
+        List<com.example.backend.entity.PickupStatusHistory> histories = pickupStatusHistoryRepository.findByPickupIdOrderByChangedAtAsc(pickupId);
+        return PickupResponse.fromEntity(pickup, histories);
     }
 
     @Transactional
@@ -222,7 +239,12 @@ public class CollectorService {
 
         pickup.setStatus(target);
         Pickup updated = pickupRepository.save(pickup);
-        return PickupResponse.fromEntity(updated);
+        pickupStatusHistoryRepository.save(new com.example.backend.entity.PickupStatusHistory(
+                updated, target, collector, "Status updated to " + target + " by collector"
+        ));
+
+        List<com.example.backend.entity.PickupStatusHistory> histories = pickupStatusHistoryRepository.findByPickupIdOrderByChangedAtAsc(pickupId);
+        return PickupResponse.fromEntity(updated, histories);
     }
 
     @Transactional
@@ -250,11 +272,15 @@ public class CollectorService {
         pickup.setStatus(PickupStatus.COLLECTED);
 
         Pickup updated = pickupRepository.save(pickup);
+        pickupStatusHistoryRepository.save(new com.example.backend.entity.PickupStatusHistory(
+                updated, PickupStatus.COLLECTED, collector, "Collection completed. Actual weight: " + request.getActualWeight() + " kg"
+        ));
 
         // Check if collector has remaining active pickups to update availability
         updateCollectorAvailabilityStatus(collector);
 
-        return PickupResponse.fromEntity(updated);
+        List<com.example.backend.entity.PickupStatusHistory> histories = pickupStatusHistoryRepository.findByPickupIdOrderByChangedAtAsc(pickupId);
+        return PickupResponse.fromEntity(updated, histories);
     }
 
     private void updateCollectorAvailabilityStatus(User collector) {

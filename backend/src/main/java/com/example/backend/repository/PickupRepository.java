@@ -17,6 +17,10 @@ public interface PickupRepository extends JpaRepository<Pickup, Long> {
 
     List<Pickup> findByCustomerIdOrderByCreatedAtDesc(Long customerId);
 
+    List<Pickup> findByCustomerIdAndStatusOrderByCreatedAtDesc(Long customerId, PickupStatus status);
+
+    List<Pickup> findAllByOrderByCreatedAtDesc();
+
     Optional<Pickup> findByIdAndCustomerId(Long id, Long customerId);
 
     long countByCustomerId(Long customerId);

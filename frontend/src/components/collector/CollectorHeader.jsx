@@ -11,22 +11,16 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-
 import { formatName } from '../../utils/formatters';
 
-const CustomerHeader = ({ onMobileToggle, title }) => {
+const CollectorHeader = ({ onMobileToggle, title }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
   const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
 
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
+  const handleMenuOpen = (e) => setAnchorEl(e.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
 
   const handleLogout = () => {
     handleMenuClose();
@@ -36,7 +30,7 @@ const CustomerHeader = ({ onMobileToggle, title }) => {
 
   const handleProfile = () => {
     handleMenuClose();
-    navigate('/customer/profile');
+    navigate('/collector/profile');
   };
 
   const getInitials = (name) => {
@@ -54,24 +48,25 @@ const CustomerHeader = ({ onMobileToggle, title }) => {
         <button className="mobile-toggle-btn" onClick={onMobileToggle} aria-label="Open Navigation">
           <MenuIcon />
         </button>
-        <h1 className="header-title">{title || 'Customer Portal'}</h1>
+        <h1 className="header-title">{title || 'Collector Portal'}</h1>
       </div>
 
       <div className="header-right">
+        {/* Profile Dropdown Trigger */}
         <div className="user-profile-trigger" onClick={handleMenuOpen}>
           <Avatar className="user-avatar" sx={{ bgcolor: '#395F51', width: 36, height: 36, fontSize: '0.9rem', fontWeight: 700 }}>
             {getInitials(user?.name)}
           </Avatar>
           <div className="user-info-text">
-            <span className="user-name">{formatName(user?.name)}</span>
-            <span className="user-role">Customer</span>
+            <span className="user-name">{formatName(user?.name) || 'Collector'}</span>
+            <span className="user-role">Collector</span>
           </div>
           <KeyboardArrowDownIcon className="dropdown-arrow" fontSize="small" />
         </div>
 
         <Menu
           anchorEl={anchorEl}
-          open={open}
+          open={Boolean(anchorEl)}
           onClose={handleMenuClose}
           onClick={handleMenuClose}
           PaperProps={{
@@ -89,12 +84,11 @@ const CustomerHeader = ({ onMobileToggle, title }) => {
           transformOrigin={{ horizontal: 'right', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
-          {/* User Info Header in Dropdown Menu */}
           <div style={{ padding: '14px 16px', borderBottom: '1px solid #E2E8F0', backgroundColor: '#F8FAFC' }}>
             <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: '#0F172A' }}>{formatName(user?.name)}</p>
             <p style={{ margin: '2px 0 6px 0', fontSize: '0.775rem', color: '#64748B' }}>{user?.email || ''}</p>
-            <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700, backgroundColor: '#F2F6F4', color: '#395F51', border: '1px solid #C2D6CD', textTransform: 'uppercase' }}>
-              Customer Account
+            <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700, backgroundColor: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', textTransform: 'uppercase' }}>
+              Collector Account
             </span>
           </div>
 
@@ -106,11 +100,11 @@ const CustomerHeader = ({ onMobileToggle, title }) => {
               My Profile
             </MenuItem>
 
-            <MenuItem onClick={() => { handleMenuClose(); navigate('/customer/pickups'); }} sx={{ padding: '10px 16px', fontSize: '0.9rem', fontWeight: 600, color: '#334155', '&:hover': { backgroundColor: '#F1F5F9', color: '#395F51' } }}>
+            <MenuItem onClick={() => { handleMenuClose(); navigate('/collector/pickups'); }} sx={{ padding: '10px 16px', fontSize: '0.9rem', fontWeight: 600, color: '#334155', '&:hover': { backgroundColor: '#F1F5F9', color: '#395F51' } }}>
               <ListItemIcon sx={{ color: '#395F51', minWidth: '32px !important' }}>
                 <LocalShippingIcon fontSize="small" />
               </ListItemIcon>
-              My Pickups
+              Assigned Pickups
             </MenuItem>
 
             <Divider sx={{ my: 0.5 }} />
@@ -128,4 +122,4 @@ const CustomerHeader = ({ onMobileToggle, title }) => {
   );
 };
 
-export default CustomerHeader;
+export default CollectorHeader;

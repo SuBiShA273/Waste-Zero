@@ -9,6 +9,7 @@ import {
   BadgeOutlined as BadgeOutlinedIcon,
   Visibility,
   VisibilityOff,
+  LocationOn as LocationOnIcon,
 } from '@mui/icons-material';
 
 const RegisterPage = () => {
@@ -20,6 +21,7 @@ const RegisterPage = () => {
     email: '',
     phone: '',
     role: 'CUSTOMER',
+    serviceArea: 'Zone 1',
     password: '',
     confirmPassword: '',
   });
@@ -61,7 +63,6 @@ const RegisterPage = () => {
     }
 
     // Strict Strong Password Validation Regex
-    // Requires: >=8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special character
     const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._\-#])[A-Za-z\d@$!%*?&._\-#]{8,}$/;
     if (!strongPasswordRegex.test(formData.password)) {
       setError('Password must be at least 8 characters long and contain an uppercase letter, lowercase letter, number, and special character (@$!%*?&._-#).');
@@ -82,6 +83,7 @@ const RegisterPage = () => {
         email: formData.email,
         phone: formData.phone,
         role: formData.role,
+        serviceArea: formData.role === 'COLLECTOR' ? formData.serviceArea : null,
         password: formData.password,
       };
       const res = await register(payload);
@@ -181,9 +183,31 @@ const RegisterPage = () => {
                 >
                   <option value="CUSTOMER">Customer</option>
                   <option value="COLLECTOR">Collector</option>
+                  <option value="ADMIN">Admin</option>
                 </select>
               </div>
             </div>
+
+            {/* Collector Operating Zone Selection */}
+            {formData.role === 'COLLECTOR' && (
+              <div className="form-group">
+                <div className="input-container">
+                  <LocationOnIcon className="input-icon-left" />
+                  <select
+                    name="serviceArea"
+                    className="auth-input-field auth-select-field"
+                    value={formData.serviceArea}
+                    onChange={handleChange}
+                    disabled={loading}
+                  >
+                    <option value="Zone 1">Operating Zone: Zone 1</option>
+                    <option value="Zone 2">Operating Zone: Zone 2</option>
+                    <option value="Zone 3">Operating Zone: Zone 3</option>
+                    <option value="Zone 4">Operating Zone: Zone 4</option>
+                  </select>
+                </div>
+              </div>
+            )}
 
             <div className="form-group">
               <div className="input-container">

@@ -40,9 +40,21 @@ public class PickupResponse {
     private String rejectionReason;
     private String proofImageUrl;
 
+    // Recycling details
+    private LocalDateTime recycledAt;
+    private String recycledByName;
+    private String recyclingNotes;
+
+    // Lifecycle history
+    private java.util.List<PickupStatusHistoryResponse> statusHistory;
+
     public PickupResponse() {}
 
     public static PickupResponse fromEntity(Pickup pickup) {
+        return fromEntity(pickup, null);
+    }
+
+    public static PickupResponse fromEntity(Pickup pickup, java.util.List<com.example.backend.entity.PickupStatusHistory> histories) {
         PickupResponse response = new PickupResponse();
         response.setId(pickup.getId());
         response.setWasteCategory(pickup.getWasteCategory());
@@ -61,6 +73,12 @@ public class PickupResponse {
         response.setRejectionReason(pickup.getRejectionReason());
         response.setProofImageUrl(pickup.getProofImageUrl());
 
+        response.setRecycledAt(pickup.getRecycledAt());
+        response.setRecyclingNotes(pickup.getRecyclingNotes());
+        if (pickup.getRecycledBy() != null) {
+            response.setRecycledByName(pickup.getRecycledBy().getName());
+        }
+
         if (pickup.getCustomer() != null) {
             response.setCustomerId(pickup.getCustomer().getId());
             response.setCustomerName(pickup.getCustomer().getName());
@@ -74,6 +92,12 @@ public class PickupResponse {
             response.setCollectorEmail(pickup.getCollector().getEmail());
             response.setCollectorPhone(pickup.getCollector().getPhone());
             response.setCollectorServiceArea(pickup.getCollector().getServiceArea());
+        }
+
+        if (histories != null) {
+            response.setStatusHistory(histories.stream()
+                    .map(PickupStatusHistoryResponse::fromEntity)
+                    .collect(java.util.stream.Collectors.toList()));
         }
 
         return response;
@@ -269,5 +293,37 @@ public class PickupResponse {
 
     public void setCollectorServiceArea(String collectorServiceArea) {
         this.collectorServiceArea = collectorServiceArea;
+    }
+
+    public LocalDateTime getRecycledAt() {
+        return recycledAt;
+    }
+
+    public void setRecycledAt(LocalDateTime recycledAt) {
+        this.recycledAt = recycledAt;
+    }
+
+    public String getRecycledByName() {
+        return recycledByName;
+    }
+
+    public void setRecycledByName(String recycledByName) {
+        this.recycledByName = recycledByName;
+    }
+
+    public String getRecyclingNotes() {
+        return recyclingNotes;
+    }
+
+    public void setRecyclingNotes(String recyclingNotes) {
+        this.recyclingNotes = recyclingNotes;
+    }
+
+    public java.util.List<PickupStatusHistoryResponse> getStatusHistory() {
+        return statusHistory;
+    }
+
+    public void setStatusHistory(java.util.List<PickupStatusHistoryResponse> statusHistory) {
+        this.statusHistory = statusHistory;
     }
 }

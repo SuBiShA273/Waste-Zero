@@ -75,6 +75,16 @@ public class Pickup {
     @Column(name = "proof_image_url")
     private String proofImageUrl;
 
+    @Column(name = "recycled_at")
+    private LocalDateTime recycledAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recycled_by_id")
+    private User recycledBy;
+
+    @Column(name = "recycling_notes", columnDefinition = "TEXT")
+    private String recyclingNotes;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -276,6 +286,30 @@ public class Pickup {
         }
         return getRejectedCollectors().stream()
                 .anyMatch(rc -> rc.getId() != null && rc.getId().equals(collector.getId()));
+    }
+
+    public LocalDateTime getRecycledAt() {
+        return recycledAt;
+    }
+
+    public void setRecycledAt(LocalDateTime recycledAt) {
+        this.recycledAt = recycledAt;
+    }
+
+    public User getRecycledBy() {
+        return recycledBy;
+    }
+
+    public void setRecycledBy(User recycledBy) {
+        this.recycledBy = recycledBy;
+    }
+
+    public String getRecyclingNotes() {
+        return recyclingNotes;
+    }
+
+    public void setRecyclingNotes(String recyclingNotes) {
+        this.recyclingNotes = recyclingNotes;
     }
 
     public Long getVersion() {

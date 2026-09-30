@@ -25,4 +25,14 @@ export const pickupService = {
     const response = await api.patch(`/api/pickups/${id}/cancel`);
     return response.data;
   },
+
+  recyclePickup: async (id, data) => {
+    const response = await api.patch(`/api/admin/pickups/${id}/recycle`, data || {});
+    return response.data;
+  },
+
+  getAllAdminPickups: async () => {
+    const response = await api.get('/api/admin/pickups');
+    return response.data;
+  },
 };

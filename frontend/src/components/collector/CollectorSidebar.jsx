@@ -3,15 +3,13 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import ParkIcon from '@mui/icons-material/Park';
-import ReportProblemIcon from '@mui/icons-material/ReportProblem';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import HistoryIcon from '@mui/icons-material/History';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import CloseIcon from '@mui/icons-material/Close';
 
-const CustomerSidebar = ({ mobileOpen, onMobileClose }) => {
+const CollectorSidebar = ({ mobileOpen, onMobileClose }) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -21,11 +19,9 @@ const CustomerSidebar = ({ mobileOpen, onMobileClose }) => {
   };
 
   const navItems = [
-    { label: 'Dashboard', path: '/customer/dashboard', icon: <DashboardIcon />, end: true },
-    { label: 'Request Pickup', path: '/customer/pickups/new', icon: <AddCircleOutlinedIcon />, end: true },
-    { label: 'My Pickups', path: '/customer/pickups', icon: <LocalShippingIcon />, end: true },
-    { label: 'Environmental Impact', path: '/customer/impact', icon: <ParkIcon />, end: true },
-    { label: 'Complaints', path: '/customer/complaints', icon: <ReportProblemIcon />, end: true },
+    { label: 'Dashboard', path: '/collector/dashboard', icon: <DashboardIcon />, end: true },
+    { label: 'Assigned Pickups', path: '/collector/pickups', icon: <AssignmentIcon />, end: true },
+    { label: 'Pickup History', path: '/collector/history', icon: <HistoryIcon />, end: true },
   ];
 
   return (
@@ -63,7 +59,7 @@ const CustomerSidebar = ({ mobileOpen, onMobileClose }) => {
                 onClick={onMobileClose}
               >
                 <span className="nav-icon">{item.icon}</span>
-                <span className="nav-label">{item.label}</span>
+                <span className="nav-label" style={{ flex: 1 }}>{item.label}</span>
               </NavLink>
             ))}
           </nav>
@@ -73,7 +69,7 @@ const CustomerSidebar = ({ mobileOpen, onMobileClose }) => {
         <div className="sidebar-bottom-section">
           <div className="nav-divider" />
           <NavLink
-            to="/customer/profile"
+            to="/collector/profile"
             end
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             onClick={onMobileClose}
@@ -92,4 +88,4 @@ const CustomerSidebar = ({ mobileOpen, onMobileClose }) => {
   );
 };
 
-export default CustomerSidebar;
+export default CollectorSidebar;

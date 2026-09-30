@@ -20,7 +20,6 @@ const CustomerLayout = () => {
     if (pathname.includes('/customer/pickups/new')) return 'Request Waste Pickup';
     if (pathname.includes('/customer/pickups/') && pathname.split('/').length === 4) return 'Pickup Details';
     if (pathname.includes('/customer/pickups')) return 'My Pickups';
-    if (pathname.includes('/customer/notifications')) return 'Notifications';
     if (pathname.includes('/customer/impact')) return 'Environmental Impact';
     if (pathname.includes('/customer/complaints')) return 'Complaints';
     if (pathname.includes('/customer/profile')) return 'Customer Profile';

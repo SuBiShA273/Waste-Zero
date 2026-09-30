@@ -24,6 +24,13 @@ const TIME_SLOTS = [
   '03:00 PM - 06:00 PM (Evening)',
 ];
 
+const SERVICE_AREAS = [
+  { value: 'Zone 1', label: 'Zone 1' },
+  { value: 'Zone 2', label: 'Zone 2' },
+  { value: 'Zone 3', label: 'Zone 3' },
+  { value: 'Zone 4', label: 'Zone 4' },
+];
+
 const CreatePickupPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -41,6 +48,7 @@ const CreatePickupPage = () => {
     wasteCategory: 'PLASTIC',
     description: '',
     pickupAddress: '',
+    serviceArea: 'Zone 1',
     preferredDate: getTodayString(),
     preferredTime: TIME_SLOTS[0],
   });
@@ -138,6 +146,24 @@ const CreatePickupPage = () => {
             {formErrors.description && (
               <span className="field-error-text">{formErrors.description}</span>
             )}
+          </div>
+
+          {/* Service Area */}
+          <div className="form-group-item">
+            <label className="field-label">Service Area / Zone *</label>
+            <select
+              name="serviceArea"
+              value={formData.serviceArea}
+              onChange={handleChange}
+              className="custom-select-input"
+              disabled={creating}
+            >
+              {SERVICE_AREAS.map((area) => (
+                <option key={area.value} value={area.value}>
+                  {area.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Pickup Address */}
