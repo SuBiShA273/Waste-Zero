@@ -184,81 +184,99 @@ const CustomerComplaintsPage = () => {
           {complaints.map((item) => (
             <div
               key={item.id}
-              onClick={() => setSelectedComplaint(item)}
               style={{
                 backgroundColor: '#FFFFFF',
                 borderRadius: '12px',
                 border: '1.5px solid #CBD5E1',
                 padding: '20px',
-                cursor: 'pointer',
-                transition: 'transform 0.15s ease, box-shadow 0.15s ease',
                 boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
                 display: 'flex',
                 flexDirection: 'column',
-                justify: 'space-between'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 8px 16px -4px rgba(0, 0, 0, 0.08)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'none';
-                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.04)';
+                gap: '14px'
               }}
             >
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    {getStatusIconBox(item.status)}
-                    <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A' }}>
-                      Ticket #{item.id}
-                    </span>
-                  </div>
-                  {getStatusChip(item.status)}
+              {/* Ticket Header & Status */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '12px', borderBottom: '1px solid #F1F5F9' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  {getStatusIconBox(item.status)}
+                  <span style={{ fontSize: '1rem', fontWeight: 800, color: '#000000' }}>
+                    Ticket #{item.id}
+                  </span>
                 </div>
-
-                <h4 style={{ margin: '0 0 8px 0', fontSize: '1.05rem', fontWeight: 800, color: '#0F172A' }}>
-                  {item.subject}
-                </h4>
-
-                <p style={{
-                  margin: '0 0 12px 0',
-                  fontSize: '0.875rem',
-                  color: '#475569',
-                  lineHeight: 1.4,
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden'
-                }}>
-                  {item.description}
-                </p>
-
-                {item.pickupId && (
-                  <div style={{ fontSize: '0.8rem', color: '#395F51', fontWeight: 700, marginBottom: '8px' }}>
-                    Linked Pickup #{item.pickupId} {item.pickupCategory ? `(${formatCategory(item.pickupCategory)})` : ''}
-                  </div>
-                )}
-
-                {item.adminResponse && (
-                  <div style={{
-                    backgroundColor: '#F8FAFC',
-                    border: '1px solid #E2E8F0',
-                    borderLeft: '4px solid #395F51',
-                    padding: '10px 12px',
-                    borderRadius: '8px',
-                    marginTop: '8px',
-                    fontSize: '0.825rem',
-                    color: '#334155'
-                  }}>
-                    <strong style={{ color: '#0F172A' }}>Admin Response:</strong> {item.adminResponse}
-                  </div>
-                )}
+                {getStatusChip(item.status)}
               </div>
 
-              <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid #F1F5F9', fontSize: '0.775rem', color: '#64748B', display: 'flex', justifyContent: 'space-between' }}>
-                <span>Filed: {formatDateTime(item.createdAt)}</span>
-                <span style={{ fontWeight: 700, color: '#395F51' }}>View Ticket →</span>
+              {/* Subject */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.5px' }}>SUBJECT</span>
+                <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#000000' }}>
+                  {item.subject}
+                </h4>
+              </div>
+
+              {/* Description */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.5px' }}>DESCRIPTION</span>
+                <div style={{
+                  backgroundColor: '#F8FAFC',
+                  border: '1.5px solid #CBD5E1',
+                  borderRadius: '8px',
+                  padding: '12px 14px',
+                  fontSize: '0.9rem',
+                  color: '#000000',
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: 1.5
+                }}>
+                  {item.description}
+                </div>
+              </div>
+
+              {/* Linked Pickup if present */}
+              {item.pickupId && (
+                <div style={{
+                  backgroundColor: '#F0FDF4',
+                  border: '1px solid #BBF7D0',
+                  borderRadius: '8px',
+                  padding: '10px 12px',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  color: '#166534'
+                }}>
+                  Linked Pickup #{item.pickupId} {item.pickupCategory ? `(${formatCategory(item.pickupCategory)})` : ''}
+                </div>
+              )}
+
+              {/* Admin Response if present */}
+              {item.adminResponse ? (
+                <div style={{
+                  backgroundColor: '#F8FAFC',
+                  border: '1px solid #CBD5E1',
+                  borderLeft: '4px solid #395F51',
+                  padding: '12px 14px',
+                  borderRadius: '8px',
+                  fontSize: '0.875rem',
+                  color: '#000000'
+                }}>
+                  <strong style={{ color: '#395F51', display: 'block', marginBottom: '4px' }}>Admin Response:</strong>
+                  <span>{item.adminResponse}</span>
+                </div>
+              ) : (
+                <div style={{
+                  backgroundColor: '#FFFBEB',
+                  border: '1px solid #FCD34D',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  fontSize: '0.825rem',
+                  color: '#92400E',
+                  fontWeight: 600
+                }}>
+                  Pending Admin Review
+                </div>
+              )}
+
+              {/* Filed Date Footer */}
+              <div style={{ paddingTop: '10px', borderTop: '1px solid #F1F5F9', fontSize: '0.8rem', color: '#64748B' }}>
+                <strong style={{ color: '#475569' }}>FILED DATE:</strong> {formatDateTime(item.createdAt)}
               </div>
             </div>
           ))}
