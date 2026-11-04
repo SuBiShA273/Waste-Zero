@@ -40,6 +40,9 @@ public class ImpactService {
     }
 
     public static Double getConversionFactor(WasteCategory category) {
+        if (category == null) {
+            return 0.5;
+        }
         return CONVERSION_FACTORS.getOrDefault(category, 0.5);
     }
 

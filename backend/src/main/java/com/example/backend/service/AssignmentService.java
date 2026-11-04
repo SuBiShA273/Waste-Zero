@@ -42,7 +42,8 @@ public class AssignmentService {
 
     /**
      * Evaluates all active, available collectors and selects the most suitable candidate
-     * based on role, active account, availability status, service area matching, and lowest active workload.
+     * based on role (COLLECTOR), active account, AVAILABLE status, lowest active workload,
+     * and deterministic tie-breaking (collector ID). Service areas and zones are intentionally not used.
      */
     @Transactional(readOnly = true)
     public Optional<User> findBestEligibleCollector(Pickup pickup) {
@@ -69,18 +70,8 @@ public class AssignmentService {
             return Optional.empty();
         }
 
-        // 3. Service Area Matching (Soft preference: prefer area match, fall back to all available candidate collectors if no area match)
-        String targetArea = StringUtils.hasText(pickup.getServiceArea()) ? pickup.getServiceArea().trim() : null;
-        String pickupAddress = StringUtils.hasText(pickup.getPickupAddress()) ? pickup.getPickupAddress().trim() : "";
-
-        List<User> matchingCollectors = candidateCollectors.stream()
-                .filter(collector -> isServiceAreaMatch(collector, targetArea, pickupAddress))
-                .collect(Collectors.toList());
-
-        List<User> finalCandidates = matchingCollectors.isEmpty() ? candidateCollectors : matchingCollectors;
-
-        // 4. Score and select collector with lowest active workload (with stable ID tie-breaker)
-        return finalCandidates.stream()
+        // 3. Score and select collector with lowest active workload (with stable ID tie-breaker)
+        return candidateCollectors.stream()
                 .min(Comparator
                         .comparingLong((User collector) -> countActiveWorkload(collector.getId()))
                         .thenComparing(User::getId)
@@ -149,32 +140,5 @@ public class AssignmentService {
     @Transactional(readOnly = true)
     public long countActiveWorkload(Long collectorId) {
         return pickupRepository.countActiveWorkloadByCollectorId(collectorId, ACTIVE_WORKLOAD_STATUSES);
-    }
-
-    /**
-     * Practical service-area matching helper.
-     */
-    private boolean isServiceAreaMatch(User collector, String targetArea, String pickupAddress) {
-        String collectorArea = collector.getServiceArea();
-
-        // If collector has no service area configured or set to All, accept any
-        if (!StringUtils.hasText(collectorArea) || "ALL".equalsIgnoreCase(collectorArea.trim()) || "ANY".equalsIgnoreCase(collectorArea.trim())) {
-            return true;
-        }
-
-        String normCollectorArea = collectorArea.trim().toLowerCase();
-
-        // Case A: Explicit serviceArea passed in request
-        if (StringUtils.hasText(targetArea)) {
-            String normTarget = targetArea.toLowerCase();
-            return normCollectorArea.contains(normTarget) || normTarget.contains(normCollectorArea);
-        }
-
-        // Case B: Substring match within pickup address
-        if (StringUtils.hasText(pickupAddress)) {
-            return pickupAddress.toLowerCase().contains(normCollectorArea);
-        }
-
-        return true;
     }
 }

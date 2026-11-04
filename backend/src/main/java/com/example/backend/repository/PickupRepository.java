@@ -56,5 +56,13 @@ public interface PickupRepository extends JpaRepository<Pickup, Long> {
     Optional<Pickup> findByIdWithPessimisticLock(@Param("id") Long id);
 
     List<Pickup> findByStatusIn(List<PickupStatus> statuses);
+
+    long countByStatus(PickupStatus status);
+
+    long countByStatusIn(List<PickupStatus> statuses);
+
+    List<Pickup> findByStatusOrderByCreatedAtDesc(PickupStatus status);
+
+    List<Pickup> findByWasteCategoryOrderByCreatedAtDesc(com.example.backend.entity.WasteCategory wasteCategory);
 }
 

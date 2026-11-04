@@ -59,4 +59,16 @@ public class CategoryImpactDto {
     public void setRecycledCount(long recycledCount) {
         this.recycledCount = recycledCount;
     }
+
+    public Double getRecycledWeightKg() {
+        return totalWeight;
+    }
+
+    public Double getCo2SavedKg() {
+        return co2Saved;
+    }
+
+    public long getRecycledPickupsCount() {
+        return recycledCount;
+    }
 }

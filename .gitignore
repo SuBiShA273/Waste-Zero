@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Build outputs
+target/
+backend/target/
+dist/
+frontend/dist/
+dist-ssr/
+
+# Environment and secrets
+.env
+.env.local
+*.env
+
+# Uploaded files / static proof images
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+*.log
