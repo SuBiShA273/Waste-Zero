@@ -83,67 +83,71 @@ const AdminUsersPage = () => {
       {error && <Alert severity="error" sx={{ borderRadius: '12px' }}>{error}</Alert>}
 
       {/* Filter and Search Bar */}
-      <div className="quick-actions-card">
-        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ flex: 1, minWidth: '240px', position: 'relative' }}>
-            <input
-              type="text"
-              placeholder="Search by name, email, or phone..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px 14px 10px 38px',
-                borderRadius: '8px',
-                border: '1.5px solid #CBD5E1',
-                fontSize: '0.9rem',
-              }}
-            />
-            <SearchIcon style={{ position: 'absolute', left: '10px', top: '10px', color: '#94A3B8', fontSize: '20px' }} />
-          </div>
-
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
+      <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ flex: 1, minWidth: '240px', position: 'relative' }}>
+          <input
+            type="text"
+            placeholder="Search by name, email, or phone..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             style={{
-              padding: '10px 14px',
+              width: '100%',
+              padding: '10px 14px 10px 38px',
               borderRadius: '8px',
               border: '1.5px solid #CBD5E1',
               fontSize: '0.9rem',
               backgroundColor: '#FFFFFF',
               color: '#0F172A',
-              fontWeight: 600,
+              outline: 'none',
+              boxSizing: 'border-box',
             }}
-          >
-            <option value="">All Roles</option>
-            <option value="CUSTOMER">CUSTOMER</option>
-            <option value="COLLECTOR">COLLECTOR</option>
-            <option value="ADMIN">ADMIN</option>
-          </select>
+          />
+          <SearchIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', fontSize: '20px' }} />
+        </div>
 
-          <select
-            value={activeFilter}
-            onChange={(e) => setActiveFilter(e.target.value)}
-            style={{
-              padding: '10px 14px',
-              borderRadius: '8px',
-              border: '1.5px solid #CBD5E1',
-              fontSize: '0.9rem',
-              backgroundColor: '#FFFFFF',
-              color: '#0F172A',
-              fontWeight: 600,
-            }}
-          >
-            <option value="">All Statuses</option>
-            <option value="true">ACTIVE</option>
-            <option value="false">DISABLED</option>
-          </select>
+        <select
+          value={roleFilter}
+          onChange={(e) => setRoleFilter(e.target.value)}
+          style={{
+            padding: '10px 14px',
+            borderRadius: '8px',
+            border: '1.5px solid #CBD5E1',
+            fontSize: '0.9rem',
+            backgroundColor: '#FFFFFF',
+            color: '#0F172A',
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          <option value="">All Roles</option>
+          <option value="CUSTOMER">CUSTOMER</option>
+          <option value="COLLECTOR">COLLECTOR</option>
+          <option value="ADMIN">ADMIN</option>
+        </select>
 
-          <button type="submit" className="btn-action-tile primary">
-            Search
-          </button>
-        </form>
-      </div>
+        <select
+          value={activeFilter}
+          onChange={(e) => setActiveFilter(e.target.value)}
+          style={{
+            padding: '10px 14px',
+            borderRadius: '8px',
+            border: '1.5px solid #CBD5E1',
+            fontSize: '0.9rem',
+            backgroundColor: '#FFFFFF',
+            color: '#0F172A',
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          <option value="">All Statuses</option>
+          <option value="true">ACTIVE</option>
+          <option value="false">DISABLED</option>
+        </select>
+
+        <button type="submit" className="btn-action-tile primary">
+          Search
+        </button>
+      </form>
 
       {/* Users Data Table */}
       <div className="recent-pickups-card">
@@ -165,7 +169,6 @@ const AdminUsersPage = () => {
                   <th>Email</th>
                   <th>Phone</th>
                   <th>Role</th>
-                  <th>Status</th>
                   <th>Registered</th>
                   <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
@@ -178,11 +181,6 @@ const AdminUsersPage = () => {
                     <td>{u.email}</td>
                     <td>{u.phone || 'N/A'}</td>
                     <td>{getRoleChip(u.role)}</td>
-                    <td>
-                      <span className={`status-chip ${u.active ? 'chip-recycled' : 'chip-cancelled'}`}>
-                        {u.active ? 'ACTIVE' : 'DISABLED'}
-                      </span>
-                    </td>
                     <td className="text-muted-xs">
                       {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A'}
                     </td>

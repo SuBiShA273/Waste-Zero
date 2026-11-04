@@ -9,10 +9,6 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import RecyclingIcon from '@mui/icons-material/Recycling';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
 
 import { formatName, formatCategory } from '../../utils/formatters';
 
@@ -22,7 +18,6 @@ const AdminPickupsPage = () => {
   const { pickups, pickupsLoading, error, actionLoading } = useSelector((state) => state.admin);
 
   const [statusFilter, setStatusFilter] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Recycle Modal
@@ -32,13 +27,12 @@ const AdminPickupsPage = () => {
   const loadData = () => {
     const params = {};
     if (statusFilter) params.status = statusFilter;
-    if (categoryFilter) params.category = categoryFilter;
     dispatch(fetchAdminPickups(params));
   };
 
   useEffect(() => {
     loadData();
-  }, [dispatch, statusFilter, categoryFilter]);
+  }, [dispatch, statusFilter]);
 
   const handleConfirmRecycle = async () => {
     if (!recycleTargetPickup) return;
@@ -91,134 +85,74 @@ const AdminPickupsPage = () => {
           Pickup Request Directory
         </h2>
         <p style={{ color: '#64748B', fontSize: '0.9rem', margin: '4px 0 0 0' }}>
-          Inspect, filter, and manage all customer pickup requests across all lifecycle stages.
+          Inspect, filter, and manage all customer pickup requests across all stages.
         </p>
       </div>
 
       {error && <Alert severity="error" sx={{ borderRadius: '12px' }}>{error}</Alert>}
 
-      {/* Professional Filter and Search Card */}
-      <div className="quick-actions-card" style={{ border: '1.5px solid #CBD5E1', padding: '18px 24px' }}>
-        <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', alignItems: 'center' }}>
-          {/* Search Box */}
-          <div style={{ flex: '1 1 320px', position: 'relative' }}>
-            <SearchIcon
-              style={{
-                position: 'absolute',
-                left: '14px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: '#64748B',
-                fontSize: '20px',
-                pointerEvents: 'none',
-              }}
-            />
-            <input
-              type="text"
-              placeholder="Search by Pickup ID, customer, address, or collector..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                width: '100%',
-                height: '44px',
-                padding: '0 16px 0 44px',
-                borderRadius: '8px',
-                border: '1.5px solid #CBD5E1',
-                fontSize: '0.925rem',
-                color: '#0F172A',
-                backgroundColor: '#FFFFFF',
-                outline: 'none',
-                transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#395F51';
-                e.target.style.boxShadow = '0 0 0 3px rgba(57, 95, 81, 0.15)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#CBD5E1';
-                e.target.style.boxShadow = 'none';
-              }}
-            />
-          </div>
-
-          {/* Status Filter */}
-          <div style={{ minWidth: '180px' }}>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              style={{
-                width: '100%',
-                height: '44px',
-                padding: '0 14px',
-                borderRadius: '8px',
-                border: '1.5px solid #CBD5E1',
-                fontSize: '0.9rem',
-                backgroundColor: '#FFFFFF',
-                color: '#0F172A',
-                fontWeight: 600,
-                cursor: 'pointer',
-                outline: 'none',
-              }}
-            >
-              <option value="">All Lifecycle Statuses</option>
-              <option value="REQUESTED">REQUESTED</option>
-              <option value="ASSIGNED">ASSIGNED</option>
-              <option value="ACCEPTED">ACCEPTED</option>
-              <option value="ON_THE_WAY">ON THE WAY</option>
-              <option value="ARRIVED">ARRIVED</option>
-              <option value="COLLECTED">COLLECTED</option>
-              <option value="RECYCLED">RECYCLED</option>
-              <option value="CANCELLED">CANCELLED</option>
-              <option value="REASSIGNABLE">REASSIGNABLE</option>
-            </select>
-          </div>
-
-          {/* Category Filter */}
-          <div style={{ minWidth: '180px' }}>
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              style={{
-                width: '100%',
-                height: '44px',
-                padding: '0 14px',
-                borderRadius: '8px',
-                border: '1.5px solid #CBD5E1',
-                fontSize: '0.9rem',
-                backgroundColor: '#FFFFFF',
-                color: '#0F172A',
-                fontWeight: 600,
-                cursor: 'pointer',
-                outline: 'none',
-              }}
-            >
-              <option value="">All Waste Categories</option>
-              <option value="PLASTIC">PLASTIC</option>
-              <option value="PAPER">PAPER</option>
-              <option value="GLASS">GLASS</option>
-              <option value="METAL">METAL</option>
-              <option value="ORGANIC">ORGANIC</option>
-              <option value="E_WASTE">E_WASTE</option>
-              <option value="MIXED">MIXED</option>
-              <option value="OTHER">OTHER</option>
-            </select>
-          </div>
-
-          {/* Clear Filters Button */}
-          {(searchQuery || statusFilter || categoryFilter) && (
-            <button
-              className="btn-action-tile secondary"
-              onClick={() => {
-                setSearchQuery('');
-                setStatusFilter('');
-                setCategoryFilter('');
-              }}
-              style={{ height: '44px', padding: '0 16px', fontSize: '0.85rem' }}
-            >
-              Reset Filters
-            </button>
-          )}
+      {/* Filter and Search Bar — flat, no card wrapper */}
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+        {/* Search Box */}
+        <div style={{ flex: '1 1 280px', position: 'relative' }}>
+          <SearchIcon style={{
+            position: 'absolute', left: '12px', top: '50%',
+            transform: 'translateY(-50%)', color: '#94A3B8', fontSize: '20px', pointerEvents: 'none',
+          }} />
+          <input
+            type="text"
+            placeholder="Search by ID, customer, address or collector..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              width: '100%', height: '42px',
+              padding: '0 14px 0 40px',
+              borderRadius: '8px',
+              border: '1.5px solid #CBD5E1',
+              fontSize: '0.9rem', color: '#0F172A',
+              backgroundColor: '#FFFFFF',
+              outline: 'none', boxSizing: 'border-box',
+              transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+            }}
+            onFocus={(e) => { e.target.style.borderColor = '#395F51'; e.target.style.boxShadow = '0 0 0 3px rgba(57,95,81,0.12)'; }}
+            onBlur={(e) => { e.target.style.borderColor = '#CBD5E1'; e.target.style.boxShadow = 'none'; }}
+          />
         </div>
+
+        {/* Status Filter */}
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          style={{
+            height: '42px', padding: '0 14px',
+            borderRadius: '8px',
+            border: '1.5px solid #CBD5E1',
+            fontSize: '0.9rem',
+            backgroundColor: '#FFFFFF',
+            color: '#0F172A',
+            fontWeight: 600, cursor: 'pointer', outline: 'none',
+          }}
+        >
+          <option value="">All Statuses</option>
+          <option value="REQUESTED">REQUESTED</option>
+          <option value="ASSIGNED">ASSIGNED</option>
+          <option value="ACCEPTED">ACCEPTED</option>
+          <option value="ON_THE_WAY">ON THE WAY</option>
+          <option value="ARRIVED">ARRIVED</option>
+          <option value="COLLECTED">COLLECTED</option>
+          <option value="RECYCLED">RECYCLED</option>
+        </select>
+
+        {/* Clear Filters */}
+        {(searchQuery || statusFilter) && (
+          <button
+            className="btn-action-tile secondary"
+            onClick={() => { setSearchQuery(''); setStatusFilter(''); }}
+            style={{ height: '42px', padding: '0 16px', fontSize: '0.85rem' }}
+          >
+            Reset Filters
+          </button>
+        )}
       </div>
 
       {/* Pickups Table */}
@@ -243,7 +177,7 @@ const AdminPickupsPage = () => {
                   <th>Preferred Date</th>
                   <th>Status</th>
                   <th>Collector</th>
-                  <th>Actual Weight</th>
+                  <th>Weight</th>
                   <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
@@ -253,18 +187,20 @@ const AdminPickupsPage = () => {
                     <td className="font-semibold">#{p.id}</td>
                     <td className="font-semibold">{formatName(p.customerName || p.customerEmail)}</td>
                     <td>{formatCategory(p.wasteCategory)}</td>
-                    <td className="text-truncate" style={{ maxWidth: '200px' }}>{p.pickupAddress}</td>
+                    <td className="text-truncate" style={{ maxWidth: '180px' }}>{p.pickupAddress}</td>
                     <td className="text-muted-xs">
-                      {p.preferredDate} {p.preferredTime ? `(${p.preferredTime})` : ''}
+                      {p.preferredDate
+                        ? new Date(p.preferredDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+                        : 'N/A'}
                     </td>
                     <td>
                       <span className={`status-chip ${getStatusChipClass(p.status)}`}>
                         {p.status}
                       </span>
                     </td>
-                    <td>{formatName(p.collectorName) || 'Unassigned'}</td>
+                    <td>{formatName(p.collectorName) || <span style={{ color: '#94A3B8' }}>Unassigned</span>}</td>
                     <td className="font-semibold" style={{ color: p.actualWeight ? '#395F51' : '#94A3B8' }}>
-                      {p.actualWeight != null ? `${p.actualWeight} kg` : 'N/A'}
+                      {p.actualWeight != null ? `${p.actualWeight} kg` : '—'}
                     </td>
                     <td style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
                       <div className="action-buttons-cell" style={{ justifyContent: 'flex-end', gap: '8px' }}>
@@ -278,10 +214,7 @@ const AdminPickupsPage = () => {
                         {p.status === 'COLLECTED' && (
                           <button
                             className="btn-action-tile primary"
-                            onClick={() => {
-                              setRecycleTargetPickup(p);
-                              setRecyclingNotes('');
-                            }}
+                            onClick={() => { setRecycleTargetPickup(p); setRecyclingNotes(''); }}
                             style={{ padding: '4px 12px', fontSize: '0.8rem' }}
                           >
                             <RecyclingIcon fontSize="small" /> Recycle
@@ -297,47 +230,124 @@ const AdminPickupsPage = () => {
         )}
       </div>
 
-      {/* Recycle Confirmation Dialog */}
-      <Dialog
-        open={Boolean(recycleTargetPickup)}
-        onClose={() => setRecycleTargetPickup(null)}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{ style: { borderRadius: '12px' } }}
-      >
-        <DialogTitle sx={{ fontWeight: 800, color: '#0F172A' }}>
-          Recycling Confirmation - Pickup #{recycleTargetPickup?.id}
-        </DialogTitle>
-        <DialogContent dividers>
-          <p style={{ margin: '0 0 12px 0', fontSize: '0.9rem', color: '#475569' }}>
-            Customer: <strong>{formatName(recycleTargetPickup?.customerName)}</strong> | Category: <strong>{recycleTargetPickup?.wasteCategory}</strong> | Weight: <strong>{recycleTargetPickup?.actualWeight} kg</strong>
-          </p>
-          <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0F172A' }}>Recycling Notes</label>
-            <textarea
-              rows={3}
-              value={recyclingNotes}
-              onChange={(e) => setRecyclingNotes(e.target.value)}
-              placeholder="Add facility details or recycling confirmation notes..."
-              style={{
-                padding: '10px 14px',
-                borderRadius: '8px',
-                border: '1.5px solid #CBD5E1',
-                fontSize: '0.9rem',
-                fontFamily: 'Inter, sans-serif',
-              }}
-            />
+      {/* Recycle Confirmation Modal */}
+      {recycleTargetPickup && (
+        <div
+          onClick={() => setRecycleTargetPickup(null)}
+          style={{
+            position: 'fixed', inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.45)',
+            backdropFilter: 'blur(2px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 1000, padding: '16px',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%', maxWidth: '480px',
+              backgroundColor: '#FFFFFF',
+              border: '1.5px solid #CBD5E1',
+              borderRadius: '16px',
+              overflow: 'hidden',
+              boxShadow: '0 20px 60px -10px rgba(0,0,0,0.2)',
+            }}
+          >
+            {/* Header */}
+            <div style={{
+              padding: '18px 24px',
+              backgroundColor: '#F8FAFC',
+              borderBottom: '1.5px solid #E2E8F0',
+              display: 'flex', alignItems: 'center', gap: '12px',
+            }}>
+              <div style={{
+                width: '36px', height: '36px', borderRadius: '50%',
+                backgroundColor: '#DCFCE7',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>
+                <RecyclingIcon style={{ color: '#059669', fontSize: '20px' }} />
+              </div>
+              <div>
+                <p style={{ margin: 0, fontWeight: 800, fontSize: '1rem', color: '#0F172A' }}>
+                  Confirm Recycling — Pickup #{recycleTargetPickup.id}
+                </p>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: '#64748B', marginTop: '2px' }}>
+                  This will mark the pickup as RECYCLED
+                </p>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Summary pill */}
+              <div style={{
+                display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px',
+              }}>
+                {[
+                  { label: 'Customer', value: formatName(recycleTargetPickup.customerName) },
+                  { label: 'Category', value: formatCategory(recycleTargetPickup.wasteCategory) },
+                  { label: 'Weight', value: `${recycleTargetPickup.actualWeight ?? '—'} kg` },
+                ].map(({ label, value }) => (
+                  <div key={label} style={{
+                    backgroundColor: '#F8FAFC', border: '1.5px solid #E2E8F0',
+                    borderRadius: '8px', padding: '10px 12px',
+                  }}>
+                    <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.4px' }}>{label}</p>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '0.88rem', fontWeight: 700, color: '#0F172A' }}>{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Notes textarea */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0F172A' }}>Recycling Notes <span style={{ color: '#94A3B8', fontWeight: 500 }}>(optional)</span></label>
+                <textarea
+                  rows={3}
+                  value={recyclingNotes}
+                  onChange={(e) => setRecyclingNotes(e.target.value)}
+                  placeholder="Add facility details or recycling confirmation notes..."
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    border: '1.5px solid #CBD5E1',
+                    fontSize: '0.9rem',
+                    fontFamily: 'inherit',
+                    resize: 'vertical',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease',
+                  }}
+                  onFocus={(e) => { e.target.style.borderColor = '#395F51'; }}
+                  onBlur={(e) => { e.target.style.borderColor = '#CBD5E1'; }}
+                />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div style={{
+              padding: '16px 24px',
+              backgroundColor: '#F8FAFC',
+              borderTop: '1.5px solid #E2E8F0',
+              display: 'flex', justifyContent: 'flex-end', gap: '10px',
+            }}>
+              <button
+                className="btn-action-tile secondary"
+                onClick={() => setRecycleTargetPickup(null)}
+                disabled={actionLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn-action-tile primary"
+                onClick={handleConfirmRecycle}
+                disabled={actionLoading}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+              >
+                {actionLoading ? <CircularProgress size={18} color="inherit" /> : <><RecyclingIcon fontSize="small" /> Confirm Recycled</>}
+              </button>
+            </div>
           </div>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <button className="btn-action-tile secondary" onClick={() => setRecycleTargetPickup(null)} disabled={actionLoading}>
-            Cancel
-          </button>
-          <button className="btn-action-tile primary" onClick={handleConfirmRecycle} disabled={actionLoading}>
-            {actionLoading ? <CircularProgress size={20} color="inherit" /> : 'Confirm RECYCLED'}
-          </button>
-        </DialogActions>
-      </Dialog>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,13 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
 import Avatar from '@mui/material/Avatar';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import Divider from '@mui/material/Divider';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -17,16 +12,21 @@ import { formatName } from '../../utils/formatters';
 const CustomerHeader = ({ onMobileToggle, title }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const handleMenuToggle = () => setOpen((prev) => !prev);
+  const handleMenuClose = () => setOpen(false);
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     handleMenuClose();
@@ -42,9 +42,7 @@ const CustomerHeader = ({ onMobileToggle, title }) => {
   const getInitials = (name) => {
     if (!name) return 'C';
     const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    }
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
     return name[0].toUpperCase();
   };
 
@@ -58,71 +56,88 @@ const CustomerHeader = ({ onMobileToggle, title }) => {
       </div>
 
       <div className="header-right">
-        <div className="user-profile-trigger" onClick={handleMenuOpen}>
-          <Avatar className="user-avatar" sx={{ bgcolor: '#395F51', width: 36, height: 36, fontSize: '0.9rem', fontWeight: 700 }}>
-            {getInitials(user?.name)}
-          </Avatar>
-          <div className="user-info-text">
-            <span className="user-name">{formatName(user?.name)}</span>
-            <span className="user-role">Customer</span>
+        <div ref={dropdownRef} style={{ position: 'relative' }}>
+          {/* Trigger */}
+          <div className="user-profile-trigger" onClick={handleMenuToggle}>
+            <Avatar sx={{ bgcolor: '#395F51', width: 36, height: 36, fontSize: '0.9rem', fontWeight: 700 }}>
+              {getInitials(user?.name)}
+            </Avatar>
+            <div className="user-info-text">
+              <span className="user-name">{formatName(user?.name)}</span>
+              <span className="user-role">Customer</span>
+            </div>
+            <KeyboardArrowDownIcon className="dropdown-arrow" fontSize="small" />
           </div>
-          <KeyboardArrowDownIcon className="dropdown-arrow" fontSize="small" />
-        </div>
 
-        <Menu
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleMenuClose}
-          onClick={handleMenuClose}
-          PaperProps={{
-            elevation: 4,
-            sx: {
-              mt: 1.5,
-              minWidth: 220,
-              borderRadius: '12px',
+          {/* Custom Dropdown */}
+          {open && (
+            <div style={{
+              position: 'absolute',
+              top: 'calc(100% + 10px)',
+              right: 0,
+              minWidth: '220px',
+              backgroundColor: '#FFFFFF',
               border: '1.5px solid #CBD5E1',
-              padding: '0',
+              borderRadius: '12px',
+              boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.05)',
               overflow: 'hidden',
-              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)',
-            },
-          }}
-          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-        >
-          {/* User Info Header in Dropdown Menu */}
-          <div style={{ padding: '14px 16px', borderBottom: '1px solid #E2E8F0', backgroundColor: '#F8FAFC' }}>
-            <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: '#0F172A' }}>{formatName(user?.name)}</p>
-            <p style={{ margin: '2px 0 6px 0', fontSize: '0.775rem', color: '#64748B' }}>{user?.email || ''}</p>
-            <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700, backgroundColor: '#F2F6F4', color: '#395F51', border: '1px solid #C2D6CD', textTransform: 'uppercase' }}>
-              Customer Account
-            </span>
-          </div>
+              zIndex: 200,
+            }}>
+              {/* User info header */}
+              <div style={{ padding: '14px 16px', borderBottom: '1px solid #E2E8F0', backgroundColor: '#F8FAFC' }}>
+                <p style={{ margin: 0, fontWeight: 800, fontSize: '0.9rem', color: '#0F172A' }}>
+                  {formatName(user?.name)}
+                </p>
+                <p style={{ margin: '2px 0 6px 0', fontSize: '0.775rem', color: '#64748B' }}>
+                  {user?.email || ''}
+                </p>
+                <span style={{
+                  display: 'inline-block', padding: '2px 8px', borderRadius: '10px',
+                  fontSize: '0.7rem', fontWeight: 700,
+                  backgroundColor: '#F2F6F4', color: '#395F51',
+                  border: '1px solid #C2D6CD', textTransform: 'uppercase',
+                }}>
+                  Customer Account
+                </span>
+              </div>
 
-          <div style={{ padding: '4px 0' }}>
-            <MenuItem onClick={handleProfile} sx={{ padding: '10px 16px', fontSize: '0.9rem', fontWeight: 600, color: '#334155', '&:hover': { backgroundColor: '#F1F5F9', color: '#395F51' } }}>
-              <ListItemIcon sx={{ color: '#395F51', minWidth: '32px !important' }}>
-                <PersonIcon fontSize="small" />
-              </ListItemIcon>
-              My Profile
-            </MenuItem>
+              {/* Menu items */}
+              <div style={{ padding: '4px 0' }}>
+                <button
+                  onClick={handleProfile}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
+                    padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: '0.9rem', fontWeight: 600, color: '#334155', textAlign: 'left',
+                    transition: 'background-color 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F1F5F9'; e.currentTarget.style.color = '#395F51'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#334155'; }}
+                >
+                  <PersonIcon fontSize="small" style={{ color: '#395F51' }} />
+                  Profile
+                </button>
 
-            <MenuItem onClick={() => { handleMenuClose(); navigate('/customer/pickups'); }} sx={{ padding: '10px 16px', fontSize: '0.9rem', fontWeight: 600, color: '#334155', '&:hover': { backgroundColor: '#F1F5F9', color: '#395F51' } }}>
-              <ListItemIcon sx={{ color: '#395F51', minWidth: '32px !important' }}>
-                <LocalShippingIcon fontSize="small" />
-              </ListItemIcon>
-              My Pickups
-            </MenuItem>
+                <div style={{ height: '1px', backgroundColor: '#E2E8F0', margin: '4px 0' }} />
 
-            <Divider sx={{ my: 0.5 }} />
-
-            <MenuItem onClick={handleLogout} sx={{ padding: '10px 16px', fontSize: '0.9rem', fontWeight: 600, color: '#DC2626', '&:hover': { backgroundColor: '#FEF2F2' } }}>
-              <ListItemIcon sx={{ color: '#DC2626', minWidth: '32px !important' }}>
-                <LogoutIcon fontSize="small" />
-              </ListItemIcon>
-              Logout
-            </MenuItem>
-          </div>
-        </Menu>
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
+                    padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: '0.9rem', fontWeight: 600, color: '#DC2626', textAlign: 'left',
+                    transition: 'background-color 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#FEF2F2'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                >
+                  <LogoutIcon fontSize="small" style={{ color: '#DC2626' }} />
+                  Logout
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

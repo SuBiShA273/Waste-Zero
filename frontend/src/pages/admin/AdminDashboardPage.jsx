@@ -20,6 +20,7 @@ import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
+import { formatCategory } from '../../utils/formatters';
 
 const AdminDashboardPage = () => {
   const dispatch = useDispatch();
@@ -56,11 +57,14 @@ const AdminDashboardPage = () => {
 
   const categoryListToRender = CATEGORY_DEFAULTS.map((def) => {
     const existing = categoryDataMap[def.category];
+    const weight = existing?.recycledWeightKg ?? existing?.totalWeight ?? 0;
+    const co2 = existing?.co2SavedKg ?? existing?.co2Saved ?? 0;
+    const count = existing?.recycledPickupsCount ?? existing?.recycledCount ?? 0;
     return {
       category: def.category,
-      recycledPickupsCount: existing?.recycledPickupsCount ?? 0,
-      recycledWeightKg: existing?.recycledWeightKg ?? 0,
-      co2SavedKg: existing?.co2SavedKg ?? 0,
+      recycledPickupsCount: count,
+      recycledWeightKg: typeof weight === 'number' ? Math.round(weight * 100) / 100 : weight,
+      co2SavedKg: typeof co2 === 'number' ? Math.round(co2 * 100) / 100 : co2,
       conversionFactor: existing?.conversionFactor ?? def.conversionFactor,
     };
   });
@@ -244,33 +248,15 @@ const AdminDashboardPage = () => {
                   backgroundColor: '#FFFFFF',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                  <span className="font-semibold" style={{ fontSize: '0.95rem', color: '#000000' }}>{cat.category}</span>
-                  <span className="status-chip chip-default" style={{ fontSize: '0.7rem' }}>{cat.recycledPickupsCount} pickups</span>
-                </div>
+                <span className="font-semibold" style={{ fontSize: '0.95rem', color: '#000000' }}>
+                  {formatCategory(cat.category)}
+                </span>
                 <span className="stat-value" style={{ color: '#395F51', fontSize: '1.4rem', margin: '6px 0 2px 0' }}>
                   {cat.recycledWeightKg} kg
                 </span>
-                <span className="text-muted-xs">CO₂ Saved: {cat.co2SavedKg} kg ({cat.conversionFactor}x factor)</span>
               </div>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Navigation Shortcuts */}
-      <div className="quick-actions-card" style={{ border: '1.5px solid #CBD5E1' }}>
-        <h3 className="section-title" style={{ color: '#000000' }}>Administrative Management Shortcuts</h3>
-        <div className="actions-button-group">
-          <button className="btn-action-tile primary" onClick={() => navigate('/admin/pickups')}>
-            Manage All Pickups <ArrowForwardIcon fontSize="small" />
-          </button>
-          <button className="btn-action-tile secondary" onClick={() => navigate('/admin/users')}>
-            User Directory <ArrowForwardIcon fontSize="small" />
-          </button>
-          <button className="btn-action-tile secondary" onClick={() => navigate('/admin/complaints')}>
-            Customer Complaints <ArrowForwardIcon fontSize="small" />
-          </button>
         </div>
       </div>
     </div>
