@@ -12,7 +12,7 @@ dist-ssr/
 # Environment and secrets
 .env
 .env.local
-*.env
+.env.production
 
 # Uploaded files / static proof images
 backend/uploads/*

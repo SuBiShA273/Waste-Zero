@@ -9,7 +9,7 @@ const LandingPage = () => {
     <div className="landing-container">
       {/* Top Navbar Header */}
       <header className="landing-header">
-        <div className="landing-logo-box" onClick={() => navigate('/')}>
+        <div className="landing-logo-box">
           <AutorenewIcon className="landing-logo-icon" />
           <span className="landing-logo-text">WasteZero</span>
         </div>
@@ -37,8 +37,6 @@ const LandingPage = () => {
         </div>
       </main>
 
-      {/* Subtle Bottom Spacer */}
-      <footer className="landing-spacer" />
     </div>
   );
 };
